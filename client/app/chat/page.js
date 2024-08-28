@@ -30,19 +30,20 @@
 //NOTE: this is the same port server is listening to, BUT...
 //this is not neccessarily the same port client spins up on when running scripts: "dev": 'next dev'
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSocket } from "@/context/chat/SocketContext"; 
 import { handleMessage } from "@/lib/socket/actions/handleMessage";
 import { Namespaces } from "@/components/chat/Namespaces";
 import { Namespace } from "@/components/chat/Namespace";
+import { Rooms } from "@/components/chat/Rooms";
 
 import "./page.css";
 
 // CLIENT-SIDE
 
 export default function ChatPage() {
-
-  const { defaultNamespaceSocket, namespaceList, setNamespaceList, namespaceSockets, selectedNsId  } = useSocket();
+  
+  const { defaultNamespaceSocket, namespaceList, setNamespaceList, namespaceSockets, selectedNsId, rooms } = useSocket();
 
   useEffect(()=>{
     if(defaultNamespaceSocket){
@@ -61,8 +62,6 @@ export default function ChatPage() {
       });
     }
   }, [defaultNamespaceSocket]);
-
-
 
   useEffect(() => {
     console.log('CLIENT: useEffect() called');
@@ -98,19 +97,23 @@ export default function ChatPage() {
     /*
     Ensure Cleanup: Always call the cleanup function to remove listeners and disconnect the socket server when the socketServer instance changes or the component unmounts.
     */
-
     setupListeners();
 
     return () => {
       cleanupListeners();
     };
-
   }, [selectedNsId]);
 
-  
+  const roomsDOM = <Rooms>{
+    rooms?.map((room, index)=>{
+      return (
+        <div key={index}>{room.roomTitle}</div>
+      );
+    })
+  }</Rooms>;
 
-  const namespaces = <Namespaces>{
-    namespaceList.map((ns, index)=>{
+  const namespacesDOM = <Namespaces>{
+    namespaceList?.map((ns, index)=>{
       return <Namespace key={index} {...ns}/>
     })
   }</Namespaces>;
@@ -123,8 +126,8 @@ export default function ChatPage() {
 
   return (
     <main>
-      <div className="sidemenu">{namespaces}</div>
-      <div className="subsidemenu">yo</div>
+      <div className="sidemenu">{namespacesDOM}</div>
+      <div className="subsidemenu">{roomsDOM}</div>
       <div className="content">
         <h2 className="room-heading">hello</h2>
         <ul id="messages" className="messages">
