@@ -1,7 +1,7 @@
 import { actionTypes } from "../../../types/ServerTypes.js";
 import { fetchNamespaces } from "./fetchNamespaces.js";
 
-export async function initNamespaceHandlers(io) {
+export async function initSocketHandlers(io) {
   //lesson 35
 
   // const thisNs = io.of(namespace.endpoint);
@@ -18,7 +18,7 @@ export async function initNamespaceHandlers(io) {
   namespaces.forEach((namespace) => {
     // io.of(namespace.endpoint) -> initializes a namespace in Socket.IO.
     //'.of(namespace.endpoint)' -> creates or retrieves a namespace based on the namespace and endpoint
-    io.of(namespace.endpoint).on(actionTypes.SOCKET_NAMESPACE_CONNECT, (socket) => {
+    io.of(namespace.endpoint).on(actionTypes.CONNECTION, (socket) => {
       console.log(`${socket.id} has connected to ${namespace.endpoint}`);
       //roomObj passed from joinRoom.js - joinRoom()
       //lesson 40 acknowlege functions - ackCallBack()

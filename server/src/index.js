@@ -5,9 +5,11 @@ import http from "http";
 import cookieParser from "cookie-parser";
 import { Server as SocketIOServer } from "socket.io";
 
-import { connectToDatabase, disconnectFromDatabase } from "./lib/socket/db/db.js";
-import { initDefaultNamespaceHandlers } from "./lib/socket/namespace/initDefaultNamespaceHandlers.js";
-import { initNamespaceHandlers } from "./lib/socket/namespace/initNamespaceHandlers.js";
+import { connectToDatabase } from "./lib/socket/db/db.js";
+import { initInitialSocketHandlers } from "./lib/socket/namespace/initInitialSocketHandlers.js";
+import { initSocketHandlers } from "./lib/socket/namespace/initSocketHandlers.js";
+import { shutdownSocketHandler } from "./lib/socket/namespace/shutdownSocketHandler.js";
+
 //routes
 import socketRoutes from "./api/socket/routes/index.js";
 import validateRoutes from "./api/validate/routes/index.js";
@@ -67,80 +69,23 @@ async function init() {
       }
       console.log(`SERVER: STEP 05 - listening on port ${serverPort}`);
 
-      //initialize listeners (ORDER IMPORTANT: initDefaultNamespaceSocketHandlers requires server api endpoint so server needs to be running first)
+      //initialize listeners (ORDER IMPORTANT: initInitialSocketHandlers requires server api endpoint so server needs to be running first)
       try {
-        await initDefaultNamespaceHandlers(io); //STEP 06 - FUNCTION initDefaultNamespaceHandlers()
-        // await initNamespaceHandlers(io); //STEP 07 - FUNCTION initNamespaceHandlers()
+        await initInitialSocketHandlers(io); //STEP 06 - FUNCTION initInitialSocketHandlers()
+        // await initSocketHandlers(io); //STEP 07 - FUNCTION initSocketHandlers()
         console.log("READY...");
       } catch (error) {
         console.error("error initializing handlers: ", error);
       }
     });
 
-    // Handle graceful shutdown
-    const shutdownHandler = async (signal) => {
-      console.log(`FUNCTION shutdownHandler(${signal})`);
-
-      try {
-        console.log("Shutting down...");
-        console.log("Starting cleanup...");
-
-        await new Promise((resolve, reject) => {
-          if (!io) {
-            console.log("Socket.IO server was not initialized");
-            return resolve(); // If io is not initialized, resolve immediately
-          }
-
-          console.log("Attempting to close Socket.IO server...");
-          //This also closes the underlying HTTP server.
-          io.close((err) => {
-            if (err) {
-              console.error("Error closing Socket.IO server:", err);
-              reject(err);
-            } else {
-              console.log("Socket.IO server closed");
-              resolve();
-            }
-          });
-          console.log("AFTER Attempting to close Socket.IO server...");
-        });
-
-        console.log("Cleanup completed.");
-        console.log("Disconnecting from database...");
-        await disconnectFromDatabase();
-        console.log("Disconnected from database.");
-      } catch (error) {
-        console.error("Error during shutdown:", error);
-      } finally {
-        console.log("Shutdown complete.");
-        process.exit(0); // Ensure process exits after cleanup
-      }
-    };
-
-    //NOTE: THIS WORKS IN LINUX but not in WINDOWS
-    /*
-    on linux (console output):
-
-    Shutting down...
-    Starting cleanup...
-    Attempting to close Socket.IO server...
-    AFTER Attempting to close Socket.IO server...
-    Socket.IO server closed
-    Cleanup completed.
-    Disconnecting from database...
-    SERVER: STEP CLEANUP - FUNCTION disconnectFromDatabase()
-    SERVER: Disconnected from MongoDB
-    Disconnected from database.
-    Shutdown complete.
-    */
-
     //graceful shutdown mechanism to close connections and cleanup resources when the server is terminated
     process.on("SIGTERM", async () => {
-      await shutdownHandler("SIGTERM");
+      shutdownSocketHandler(io, "SIGTERM");
     });
     //handle Ctrl+C in the terminal
     process.on("SIGINT", async () => {
-      await shutdownHandler("SIGINT");
+      shutdownSocketHandler(io, "SIGINT");
     });
   } catch (error) {
     console.error("Failed to start server:", error);

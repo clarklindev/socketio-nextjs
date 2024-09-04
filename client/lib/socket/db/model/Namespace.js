@@ -1,6 +1,5 @@
 class Namespace {
-  constructor(id, name, image, endpoint) {
-    this.id = id;
+  constructor(name, image, endpoint) {
     this.name = name;
     this.image = image;
     this.endpoint = endpoint;

@@ -2,20 +2,15 @@
 //'client' is the socket
 
 export const actionTypes = {
-  DEFAULT_NAMESPACE_SOCKET: "default_namespace_socket", //context
-  DEFAULT_NAMESPACE_CONNECT: "connect", //client/app/chat/page
-  FETCHED_NAMESPACES: "fetched_namespace", //context
-
+  INITIAL_SOCKET: "initial_socket", //context
+  CONNECT: "connect", //client/app/chat/page
+  SAVE_FETCHED_NAMESPACES: "save_fetched_namespace", //context
+  CREATE_SOCKET: "create_socket",
+  SAVE_SELECTED_NAMESPACE_ENDPOINT: "save_selected_namespace_endpoint",
+  SAVE_SELECTED_NAMESPACE_ROOM_IDS: "save_selected_namespace_room_ids",
+  SAVE_FETCHED_ROOMS: "save_fetched_rooms",
   //SERVER + CLIENT SHARED
-  SERVER_TO_DEFAULT_NAMESPACE: "server_to_default_namespace", //client/app/chat/page
-  DEFAULT_CLIENT_CONNECTED: "default_client_connected", //client/app/chat/page
+  SERVER_TO_INITIAL_SOCKET: "server_to_initial_socket", //client/app/chat/page
+  INITIAL_SOCKET_CONNECTED: "initial_socket_connected", //client/app/chat/page
   DB_NAMESPACES: "db_namespaces", //client/app/chat/page
-
-  /*
-    //------------------------------------------w
-    REGISTER_NAMESPACE: "register_namespace",
-    SET_NAMESPACE_ROOM_LIST: "set_namespace_room_list",
-    SET_SELECTED_NAMESPACE: "set_selected_namespace",
-    SET_ROOMS: "set_rooms"
-    */
 };

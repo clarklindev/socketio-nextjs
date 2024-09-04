@@ -8,8 +8,9 @@ import { validateImageUrl } from "@/lib/validation/validateImage";
 import classes from "./Namespace.module.css";
 
 export function Namespace(props) {
-  const { setNamespaceRoomList } = useSocket();
-  const { image, endpoint, rooms } = props;
+  const { namespaceSockets, selectedNamespaceEndpoint, createSocket, saveSelectedNamespaceEndpoint, saveSelectedNamespaceRoomIDs } =
+    useSocket();
+  const { _id, name, image, endpoint, rooms } = props;
 
   const [isValid, setIsValid] = useState(false);
 
@@ -21,21 +22,86 @@ export function Namespace(props) {
     checkImage();
   }, [image]);
 
+  //add listeners
+  // useEffect(() => {
+  //   console.log("CLIENT: useEffect() called");
+  //   let initializedSocket = null;
+
+  //   const setupListeners = () => {
+  //     if (selectedNsId && namespaceSockets[selectedNsId]) {
+  //       initializedSocket = namespaceSockets[selectedNsId];
+
+  //       initializedSocket.on("messageFromServer", (data) => {
+  //         console.log(data);
+  //       });
+
+  //       initializedSocket.on("reconnect", (data) => {
+  //         console.log("reconnect event!!!");
+  //         console.log(data);
+  //       });
+  //     }
+  //   };
+
+  //   // Function to clean up listeners
+  //   const cleanupListeners = () => {
+  //     if (initializedSocket) {
+  //       console.log("CLIENT: useEffect() cleanup cleanupListeners() called");
+  //       initializedSocket.off("connect");
+  //       initializedSocket.off("welcome");
+  //       initializedSocket.off("messageFromServer");
+  //       initializedSocket.off("reconnect");
+  //       initializedSocket.disconnect();
+  //     }
+  //   };
+  //   // Cleanup on component unmount
+  //   /*
+  //   Ensure Cleanup: Always call the cleanup function to remove listeners and disconnect the socket server when the socketServer instance changes or the component unmounts.
+  //   */
+  //   setupListeners();
+
+  //   return () => {
+  //     cleanupListeners();
+  //   };
+  // }, [selectedNsId]);
+
+  // useEffect(() => {
+  //   //addListeners job is to manage all listeners added to all namespaces.
+  //   //this prevents listeners being added multiples times and makes life
+  //   //better for us as developers.
+  //   namespaceSockets[selectedNamespaceEndpoint].on("nsChange", (data) => {
+  //     console.log("Namespace Changed!");
+  //     console.log(data);
+  //   });
+  //   //adding listeners to the socket
+  //   namespaceSockets[selectedNamespaceEndpoint].on("messageToRoom", (messageObj) => {
+  //     console.log(messageObj);
+  //     // document.querySelector("#messages").innerHTML += buildMessageHtml(messageObj);
+  //   });
+  // }, [namespaceSockets[selectedNamespaceEndpoint]]); //if new endpoint
+
   function clickHandler(event) {
     event.preventDefault();
     console.log("endpoint: ", endpoint);
-    // console.log('clicked ns id: ', props._id);
+    console.log("rooms: ", rooms); //rooms is a list of id's part of retrieved namespace from db
 
-    //rooms
-    // console.log("roomList: ", rooms);
-    // setNamespaceRoomList(rooms);
+    saveSelectedNamespaceEndpoint(endpoint);
+    saveSelectedNamespaceRoomIDs(rooms);
+
+    if (!namespaceSockets[endpoint]) {
+      //There is no socket at this nsId. So make a new connection!
+      //join this namespace with io()
+      //NOTE: the namespace endpoint (ns.endpoint) has prefix '/' in db
+      createSocket(endpoint);
+    } else {
+      console.log(`namespace already exists: (${endpoint})`);
+    }
   }
 
   // Validate image URL
   return (
     <div className="namespace" onClick={clickHandler}>
       {isValid ? (
-        <Image src={props.image} alt="namespaces" width="100" height="50" className={classes[`namespace-icon`]} />
+        <Image src={image} alt="namespaces" width="100" height="50" className={classes[`namespace-icon`]} />
       ) : (
         <div className={classes.placeholder}>placeholder</div>
       )}

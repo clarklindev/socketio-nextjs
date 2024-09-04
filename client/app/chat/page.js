@@ -15,87 +15,60 @@ import "./page.css";
 // CLIENT-SIDE
 
 export default function ChatPage() {
-  const {
-    defaultNamespaceSocket,
-    namespaces,
-    saveFetchedNamespaces,
-    //------------------------------------------
-    // namespaceSockets,
-    // registerNamespace,
-    // selectedNsId,
-    // rooms,
-  } = useSocket();
+  const { initialSocket, saveFetchedNamespaces, namespaces, rooms, selectedNamespaceRoomIDs, saveFetchedRooms } = useSocket();
 
   useEffect(() => {
-    if (defaultNamespaceSocket) {
+    if (initialSocket) {
       const handleConnect = () => {
         console.log("CLIENT: DEFAULT SOCKET has connected 'connect'");
 
-        defaultNamespaceSocket.emit(actionTypes.DEFAULT_CLIENT_CONNECTED);
+        initialSocket.emit(actionTypes.INITIAL_SOCKET_CONNECTED);
 
         // Now that we know the socket is connected, set up the other event listeners
-        defaultNamespaceSocket.on(actionTypes.SERVER_TO_DEFAULT_NAMESPACE, (data) => {
+        initialSocket.on(actionTypes.SERVER_TO_INITIAL_SOCKET, (data) => {
           console.log('CLIENT: receives "welcome":', data);
         });
 
-        defaultNamespaceSocket.on(actionTypes.DB_NAMESPACES, (namespaces) => {
-          console.log("namespaces: ", namespaces);
+        initialSocket.on(actionTypes.DB_NAMESPACES, (namespaces) => {
+          console.log("namespaces: ", namespaces); //objects
           saveFetchedNamespaces(namespaces);
         });
       };
 
       // Register the connect event handler
-      defaultNamespaceSocket.on(actionTypes.DEFAULT_NAMESPACE_CONNECT, handleConnect);
+      initialSocket.on(actionTypes.CONNECT, handleConnect);
 
       return () => {
-        defaultNamespaceSocket.off(actionTypes.DEFAULT_NAMESPACE_CONNECT, handleConnect);
-        defaultNamespaceSocket.off(actionTypes.SERVER_TO_DEFAULT_NAMESPACE);
-        defaultNamespaceSocket.off(actionTypes.DB_NAMESPACES);
+        initialSocket.off(actionTypes.CONNECT, handleConnect);
+        initialSocket.off(actionTypes.SERVER_TO_INITIAL_SOCKET);
+        initialSocket.off(actionTypes.DB_NAMESPACES);
       };
     }
-  }, [defaultNamespaceSocket]);
+  }, [initialSocket]);
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      console.log("FUNCTION fetchRooms()");
+      if (selectedNamespaceRoomIDs.length > 0) {
+        try {
+          const res = await fetch(
+            `${process.env.NEXT_PUBLIC_SERVER_URL}:${
+              process.env.NEXT_PUBLIC_SERVER_PORT
+            }/api/socket/rooms?ids=${selectedNamespaceRoomIDs.join(",")}`
+          );
+          const data = await res.json();
+          console.log("rooms: ", data);
+          saveFetchedRooms(data);
+        } catch (error) {
+          console.error("Error fetching rooms:", error);
+        }
+      } else {
+        saveFetchedRooms([]);
+      }
+    };
+    fetchRooms();
+  }, [selectedNamespaceRoomIDs]); //roomID's
   //------------------------------------------
-
-  // useEffect(() => {
-  //   console.log("CLIENT: useEffect() called");
-  //   let initializedSocket = null;
-
-  //   const setupListeners = () => {
-  //     if (selectedNsId && namespaceSockets[selectedNsId]) {
-  //       initializedSocket = namespaceSockets[selectedNsId];
-
-  //       initializedSocket.on("messageFromServer", (data) => {
-  //         console.log(data);
-  //       });
-
-  //       initializedSocket.on("reconnect", (data) => {
-  //         console.log("reconnect event!!!");
-  //         console.log(data);
-  //       });
-  //     }
-  //   };
-
-  //   // Function to clean up listeners
-  //   const cleanupListeners = () => {
-  //     if (initializedSocket) {
-  //       console.log("CLIENT: useEffect() cleanup cleanupListeners() called");
-  //       initializedSocket.off("connect");
-  //       initializedSocket.off("welcome");
-  //       initializedSocket.off("messageFromServer");
-  //       initializedSocket.off("reconnect");
-  //       initializedSocket.disconnect();
-  //     }
-  //   };
-  //   // Cleanup on component unmount
-  //   /*
-  //   Ensure Cleanup: Always call the cleanup function to remove listeners and disconnect the socket server when the socketServer instance changes or the component unmounts.
-  //   */
-  //   setupListeners();
-
-  //   return () => {
-  //     cleanupListeners();
-  //   };
-  // }, [selectedNsId]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -113,22 +86,18 @@ export default function ChatPage() {
     </Namespaces>
   );
 
-  // const roomsDOM = (
-  //   <Rooms>
-  //     {rooms?.map((room, index) => {
-  //       return <div key={index}>{room.roomTitle}</div>;
-  //     })}
-  //   </Rooms>
-  // );
+  const roomsDOM = rooms?.length > 0 && (
+    <Rooms>
+      {rooms.map((room, index) => {
+        return <div key={index}>{room.roomTitle}</div>;
+      })}
+    </Rooms>
+  );
 
   return (
     <main>
       <div className="sidemenu">{namespacesDOM}</div>
-      <div className="subsidemenu">
-        {
-          // roomsDOM
-        }
-      </div>
+      <div className="subsidemenu">{roomsDOM}</div>
       <div className="content">
         <h2 className="room-heading">hello</h2>
         <ul id="messages" className="messages"></ul>
