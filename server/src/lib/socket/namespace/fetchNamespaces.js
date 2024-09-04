@@ -1,11 +1,11 @@
-let cachedNamespaces = null;
+let cachedNamespaces;
 
-async function fetchNamespaces() {
+export async function fetchNamespaces() {
   if (cachedNamespaces) {
     return cachedNamespaces;
   }
 
-  try{
+  try {
     const apiUrl = `${process.env.SERVER_URL}:${process.env.SERVER_PORT}/api/socket/namespaces`;
     const response = await fetch(apiUrl);
     if (!response.ok) {
@@ -13,15 +13,9 @@ async function fetchNamespaces() {
     }
     cachedNamespaces = await response.json();
     return cachedNamespaces;
-  }
-  catch (error) {
-    console.error('Failed to fetch namespaces:', error);
+  } catch (error) {
+    console.error("Failed to fetch namespaces:", error);
     // Handle error appropriately, possibly return a default value or rethrow
     return [];
   }
-
- 
- 
 }
-
-export { fetchNamespaces };

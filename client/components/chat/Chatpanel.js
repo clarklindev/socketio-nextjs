@@ -18,11 +18,7 @@ export const Chatpanel = () => {
       <div className="message-form">
         <form id="message-form">
           <div className="col-sm-12">
-            <input
-              id="user-message"
-              type="text"
-              placeholder="Enter your message"
-            />
+            <input id="user-message" type="text" placeholder="Enter your message" />
           </div>
         </form>
       </div>

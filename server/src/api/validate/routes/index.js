@@ -8,6 +8,6 @@ import { validateUrl } from "../actions/validateUrl.js";
 This is often used to check the existence of a resource or to obtain metadata without downloading the full content.
 */
 
-router.get('/validateUrl', validateUrl);
-    
+router.get("/validateUrl", validateUrl);
+
 export default router;

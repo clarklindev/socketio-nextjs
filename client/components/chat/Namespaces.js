@@ -1,8 +1,3 @@
-export const Namespaces = ({children}) => {
-
-  return (
-    <div className="namespaces">
-      {children}
-    </div> 
-  );
-}
+export const Namespaces = ({ children }) => {
+  return <div className="namespaces">{children}</div>;
+};
