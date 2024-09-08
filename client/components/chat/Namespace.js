@@ -82,19 +82,11 @@ export function Namespace(props) {
   function clickHandler(event) {
     event.preventDefault();
     console.log("endpoint: ", endpoint);
-    console.log("rooms: ", rooms); //rooms is a list of id's part of retrieved namespace from db
+    console.log("rooms IDs: ", rooms); //rooms is a list of id's part of retrieved namespace from db
 
     saveSelectedNamespaceEndpoint(endpoint);
     saveSelectedNamespaceRoomIDs(rooms);
-
-    if (!namespaceSockets[endpoint]) {
-      //There is no socket at this nsId. So make a new connection!
-      //join this namespace with io()
-      //NOTE: the namespace endpoint (ns.endpoint) has prefix '/' in db
-      createSocket(endpoint);
-    } else {
-      console.log(`namespace already exists: (${endpoint})`);
-    }
+    createSocket(endpoint);
   }
 
   // Validate image URL

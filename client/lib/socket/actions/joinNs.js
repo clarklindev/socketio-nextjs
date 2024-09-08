@@ -5,7 +5,6 @@
 //NOTE: the data is coming from nsList so there shouldnt be a need to go through nsData again
 //NOTE: ...BUT THE WHOLE POINT IS TO RETURN THE ID USING THE ENDPOINT
 export function joinNs(clickedEndpoint) {
-  
   //find the ns (returns Namespace instance) in nsData with endpoint same as the one user clicked on
   const clickedNs = nsData.find((namespace) => namespace.endpoint === clickedEndpoint);
   //global- so we can submit message to the right place
@@ -28,15 +27,13 @@ export function joinNs(clickedEndpoint) {
     }
     roomList.innerHTML += `
     <li class="room" namespaceId=${room.namespaceId}>
-      <span class="fa-solid fa-${room.privateRoom ? "lock" : "globe"}"></span>${
-      room.roomTitle
-    }
+      <span class="fa-solid fa-${room.privateRoom ? "lock" : "globe"}"></span>${room.roomTitle}
     </li>
     `;
   });
 
   //init join first room
-  joinRoom(firstRoom, clickedNs.id);
+  joinRoom(firstRoom);
 
   //lesson 39 - add click listener to each room so the client can tell the server it wants to join
   // - get namespaceId from room and add to DOM, access this and pass to joinRoom()
@@ -45,9 +42,7 @@ export function joinNs(clickedEndpoint) {
   Array.from(roomNodes).forEach((elem) => {
     elem.addEventListener("click", (e) => {
       console.log("clicked on ", e.target.innerText);
-
-      const namespaceId = elem.getAttribute("namespaceId");
-      joinRoom(e.target.innerText, namespaceId);
+      joinRoom(e.target.innerText);
     });
   });
 

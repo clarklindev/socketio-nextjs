@@ -1,6 +1,5 @@
 class Room {
-  constructor(roomId, roomTitle, namespaceId, privateRoom = false) {
-    this.roomId = roomId;
+  constructor(roomTitle, namespaceId, privateRoom = false) {
     this.roomTitle = roomTitle;
     this.namespaceId = namespaceId;
     this.privateRoom = privateRoom;

@@ -1,4 +1,7 @@
 /*
+
+//see server: lib/socket/db/models/MessageModel.js
+
 messageObj structure:
 
 {

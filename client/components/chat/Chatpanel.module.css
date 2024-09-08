@@ -1,0 +1,22 @@
+.chat-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* or any height that fits your layout */
+}
+
+.room-header {
+  flex-shrink: 0; /* Prevent the header from shrinking */
+  background: blue;
+}
+
+.message-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.messages {
+  flex-grow: 1;
+  background: hotpink;
+  overflow-y: scroll;
+}

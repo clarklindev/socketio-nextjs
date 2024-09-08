@@ -1,5 +1,17 @@
 import { actionTypes } from "../../../types/ServerTypes.js";
 import { fetchNamespaces } from "./fetchNamespaces.js";
+import { getRooms } from "../../../api/socket/actions/getRooms.js";
+
+function leaveRooms(socket, rooms) {
+  //you can also create a var i=0, then increment i++
+  //as forEach iterates in ascending order
+  Array.from(rooms).forEach((room, index) => {
+    //we dont want to leave the (socket.) sockets personal room which is guaranteed to be first
+    if (index !== 0) {
+      socket.leave(room);
+    }
+  });
+}
 
 export async function initSocketHandlers(io) {
   //lesson 35
@@ -24,28 +36,28 @@ export async function initSocketHandlers(io) {
       //lesson 40 acknowlege functions - ackCallBack()
       //NOTE: roomObj - includes information necessary for the server to understand which room the client wants to join, such as namespaceId and roomTitle.
       //NOTE: CLIENTSIDE emits 'joinRoom', and an object received as 'roomObj' {roomTitle, namespaceId} from lib/chat/joinRoom.js
-      socket.on(actionTypes.SOCKET_JOIN_ROOM, async (roomObj, ackCallback) => {
+      socket.on(actionTypes.JOIN_ROOM, async (roomObj, ackCallback) => {
         //need to fetch the history
-        const thisNs = namespaces[roomObj.namespaceId];
+        const thisNs = namespaces.find((namespace) => namespace.endpoint === roomObj.selectedNamespaceEndpoint);
         //roomInstance
         //thisRoomObj - the server-side representation of the room, fetched from the server's internal data structure - It contains the room's details as they are stored on the server
-        const thisRoomObj = thisNs.rooms.find((room) => room.roomTitle === roomObj.roomTitle);
-        const thisRoomsHistory = thisRoomObj.history;
-        //leave all rooms, because the client can only be in one room
-        const rooms = socket.rooms; //returns a Set()
-        //you can also create a var i=0, then increment i++
-        //as forEach iterates in ascending order
-        Array.from(rooms).forEach((room, index) => {
-          //we dont want to leave the sockets personal room which is guaranteed to be first
-          if (index !== 0) {
-            socket.leave(room);
-          }
-        });
+        const apiUrl = `${process.env.SERVER_URL}:${process.env.SERVER_PORT}/api/socket/rooms`;
+        const queryParams = thisNs.rooms.map((id) => `${encodeURIComponent(id)}`).join(",");
+        const fullUrl = `${apiUrl}?ids=${queryParams}`;
+        const response = await fetch(fullUrl);
+        const roomObjs = await response.json();
 
-        //join the room
-        //NOTE: roomTitle is coming from CLIENT (Not safe) - do auth so user (socket) has right to join room
-        socket.join(roomObj.roomTitle);
-        //fetch the number of sockets in this room
+        const thisRoomObj = roomObjs.find((room) => room._id === roomObj.roomId);
+        const thisRoomsHistory = thisRoomObj.history;
+
+        //make client leave all rooms, because application design dictates the client can only be in one room at a time
+        leaveRooms(socket, socket.rooms); //socket.rooms returns a Set()
+
+        // //join the room
+        // //NOTE: roomTitle is coming from CLIENT (Not safe) - do auth so user (socket) has right to join room
+        socket.join(roomObj._id);
+
+        // //fetch the number of sockets in this room
         const sockets = await io.of(namespace.endpoint).in(roomObj.roomTitle).fetchSockets();
         const socketCount = sockets.length;
         ackCallback({

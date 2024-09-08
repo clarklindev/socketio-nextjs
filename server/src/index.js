@@ -72,7 +72,7 @@ async function init() {
       //initialize listeners (ORDER IMPORTANT: initInitialSocketHandlers requires server api endpoint so server needs to be running first)
       try {
         await initInitialSocketHandlers(io); //STEP 06 - FUNCTION initInitialSocketHandlers()
-        // await initSocketHandlers(io); //STEP 07 - FUNCTION initSocketHandlers()
+        await initSocketHandlers(io); //STEP 07 - FUNCTION initSocketHandlers()
         console.log("READY...");
       } catch (error) {
         console.error("error initializing handlers: ", error);
