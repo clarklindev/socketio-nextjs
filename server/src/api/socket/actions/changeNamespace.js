@@ -7,7 +7,7 @@ export function changeNamespace(req, res) {
   }
 
   //update namespaces array
-  namespaces[0].addRoom(new Room(0, "deleted articles", 0));
+  // namespaces[0].addRoom(new Room(0, "deleted articles", 0));
 
   // Emit the change to the namespace
   io.of(namespaces[0].endpoint).emit("nsChange", namespaces[0]);

@@ -3,31 +3,40 @@
 import io from "socket.io-client";
 import { createContext, useReducer, useEffect, useContext } from "react";
 
-import { actionTypes } from "@/types/ClientTypes";
-import { Message } from "@/components/chat/Message";
+import { actionTypes } from "@/lib/chat/types/ClientTypes";
+import { addUser } from "@/lib/chat/actions/addUser";
+
+//TODO:
+/*
+shouldnt there be a separation of state whats client accessible and private to the context?
+ANSWER: yes, you should access state via getters/setters, else defeats the purpose of using Context and useReducer
+*/
 
 //prop is the initial context (only values)
 const initialState = {
-  initialSocket: null,
+  //user related
+  user: null,
+  //namespace related
   db_namespaces: [], //default namespace causes fetch of a list of namespace objects from the db
   namespaceSockets: {}, //stores sockets at index 'namespace endpoint'
   selectedNamespaceEndpoint: null, //a global variable we update when the user updates the namespace
   selectedNamespaceRoomIDs: [], //after namespace selected -> this is select namespaces' rooms (just an array of mongoose object IDs)
   db_rooms: [], //fetched room objects from DB
+  //room related
+  selectedRoomId: null,
   roomHistory: [],
+  numUsers: null,
+  roomName: null,
 };
 
 //create context - if you want auto completion, the passed in object needs the skeleton of functions, constants avail
 //give rest of code structure (and has functions)
 const SocketContext = createContext({
   ...initialState,
-  saveFetchedNamespaces: (namespaceObjs) => {},
-  saveSelectedNamespaceEndpoint: (endpoint) => {},
-  saveSelectedNamespaceRoomIDs: () => {},
-  createSocket: (endpoint) => {}, //register a namespace by passing {endpoint:'namespace endpoint', socket:'socket'}
-  saveFetchedRooms: (roomObjs) => {},
+  //other functions
+  saveFetchedRooms: (db_rooms) => {},
   joinRoom: (roomId) => {},
-  saveRoomHistory: (history) => {},
+  joinNamespace: () => {},
 });
 
 // Custom Hook for Using Socket
@@ -44,13 +53,7 @@ export function SocketContextProvider({ children }) {
   //reducer
   const reducer = (state, action) => {
     switch (action.type) {
-      case actionTypes.INITIAL_SOCKET:
-        return {
-          ...state,
-          initialSocket: action.payload,
-        };
-
-      case actionTypes.SAVE_FETCHED_NAMESPACES:
+      case actionTypes.SAVE_FETCHED_DB_NAMESPACES:
         return {
           ...state,
           db_namespaces: action.payload,
@@ -77,16 +80,25 @@ export function SocketContextProvider({ children }) {
           selectedNamespaceRoomIDs: action.payload,
         };
 
-      case actionTypes.SAVE_FETCHED_ROOMS:
+      case actionTypes.SAVE_FETCHED_DB_ROOMS:
         return {
           ...state,
           db_rooms: action.payload,
         };
 
-      case actionTypes.SAVE_ROOM_HISTORY:
+      case actionTypes.SAVE_ROOM_DETAILS:
         return {
           ...state,
-          roomHistory: action.payload,
+          roomHistory: action.payload.roomHistory,
+          selectedRoomId: action.payload.selectedRoomId,
+          numUsers: action.payload.numUsers,
+          roomName: action.payload.roomName,
+        };
+
+      case actionTypes.SAVE_USER:
+        return {
+          ...state,
+          user: action.payload,
         };
 
       default:
@@ -96,20 +108,13 @@ export function SocketContextProvider({ children }) {
   //------------------------------------------
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  // YOU NEED TO DESCTRUCT STATE TO USE
-  const { initialSocket, namespaceSockets, selectedNamespaceEndpoint } = state;
+  // YOU NEED TO DESCTRUCT STATE TO USE OR ACCESS THROUGH STATE
+  const { namespaceSockets, selectedNamespaceEndpoint, user, numUsers } = state;
   //------------------------------------------
-
-  function saveInitialSocket(socket) {
-    dispatch({
-      type: actionTypes.INITIAL_SOCKET,
-      payload: socket,
-    });
-  }
 
   function saveFetchedNamespaces(db_namespaces) {
     dispatch({
-      type: actionTypes.SAVE_FETCHED_NAMESPACES,
+      type: actionTypes.SAVE_FETCHED_DB_NAMESPACES,
       payload: db_namespaces,
     });
   }
@@ -128,27 +133,65 @@ export function SocketContextProvider({ children }) {
     });
   }
 
-  function createSocket(endpoint) {
-    if (!namespaceSockets[endpoint]) {
-      //There is no socket at this nsId. So make a new connection!
-      //join this namespace with io()
-      //NOTE: the namespace endpoint (ns.endpoint) has prefix '/' in db
-      console.log(`CONTEXT: FUNCTION createSocket(${endpoint})`);
-      const socket = io(`${process.env.NEXT_PUBLIC_SERVER_URL}:${process.env.NEXT_PUBLIC_SERVER_PORT}${endpoint}`);
+  function saveFetchedRooms(db_rooms) {
+    dispatch({
+      type: actionTypes.SAVE_FETCHED_DB_ROOMS,
+      payload: db_rooms,
+    });
+  }
+
+  function saveRoomDetails(roomDetails) {
+    if (!roomDetails) {
+      //do a reset
       dispatch({
-        type: actionTypes.CREATE_SOCKET,
-        payload: { endpoint, socket },
+        type: actionTypes.SAVE_ROOM_DETAILS,
+        payload: {
+          roomHistory: [],
+          selectedRoomId: null,
+          numUsers: 0,
+          roomName: null,
+        },
       });
+      return;
+    }
+
+    const { history, roomId, numUsers, roomName } = roomDetails;
+
+    dispatch({
+      type: actionTypes.SAVE_ROOM_DETAILS,
+      payload: {
+        roomHistory: history,
+        numUsers,
+        roomName,
+        selectedRoomId: roomId,
+      },
+    });
+  }
+
+  function createSocket(endpoint) {
+    //There is no socket at this nsId. So make a new connection!
+    //join this namespace with io()
+    //NOTE: the namespace endpoint (ns.endpoint) has prefix '/' in db
+    console.log(`CONTEXT: FUNCTION createSocket(${endpoint})`);
+    const socket = io(`${process.env.NEXT_PUBLIC_SERVER_URL}:${process.env.NEXT_PUBLIC_SERVER_PORT}${endpoint}`);
+    dispatch({
+      type: actionTypes.CREATE_SOCKET,
+      payload: { endpoint, socket },
+    });
+    return socket;
+  }
+
+  async function joinNamespace(endpoint, rooms) {
+    saveSelectedNamespaceEndpoint(endpoint);
+    saveSelectedNamespaceRoomIDs(rooms);
+    saveRoomDetails(); //no prop means reset room state: selectedRoomId, roomHistory, numUsers
+
+    if (!namespaceSockets[endpoint]) {
+      const socket = await createSocket(endpoint);
+      return socket;
     } else {
       console.log(`namespace already exists: (${endpoint})`);
     }
-  }
-
-  function saveFetchedRooms(db_rooms) {
-    dispatch({
-      type: actionTypes.SAVE_FETCHED_ROOMS,
-      payload: db_rooms,
-    });
   }
 
   async function joinRoom(roomId) {
@@ -168,12 +211,12 @@ export function SocketContextProvider({ children }) {
       });
     }
     */
+    const socket = namespaceSockets[selectedNamespaceEndpoint];
+    console.log("socket: ", socket);
 
-    console.log("start");
-
-    const ackResp = await namespaceSockets[selectedNamespaceEndpoint].emitWithAck(actionTypes.JOIN_ROOM, {
-      roomId,
-      selectedNamespaceEndpoint,
+    const ackResp = await socket.emitWithAck(actionTypes.JOIN_ROOM, {
+      roomId: roomId,
+      endpoint: selectedNamespaceEndpoint,
     });
     //--------------------------------------------------------------------------
     // lesson 39 (9min 15sec) - COMMENTED OUT IN FAVOR OF USING emitWithAck()
@@ -194,9 +237,27 @@ export function SocketContextProvider({ children }) {
     console.log("ackResp: ", ackResp); //response from server ackResp = {numUsers: socketCount, thisRoomsHistory}
 
     //save room history
+    saveRoomDetails({ history: ackResp.thisRoomsHistory, numUsers: ackResp.numUsers, roomId, roomName: ackResp.roomName }); //history etc.
+  }
+
+  async function getTestUser() {
+    console.log("CLIENT: getTestUser()");
+
+    if (user) {
+      return user;
+    }
+
+    const testUser = {
+      name: "test",
+      password: "password",
+      email: "test@test.com",
+    };
+
+    const addUserResult = await addUser(testUser);
+
     dispatch({
-      type: actionTypes.SAVE_ROOM_HISTORY,
-      payload: ackResp.thisRoomsHistory,
+      type: actionTypes.SAVE_USER,
+      payload: addUserResult.savedUser,
     });
   }
 
@@ -206,26 +267,23 @@ export function SocketContextProvider({ children }) {
     // Initialize socket connection - connect to default namespace '/'
     //NOTE: io() call triggers SERVER' CALL OF: `io.on("connection", ()=>{})`
     //NOTE: a 'socket' represents a connection between client and socket server
-    const initialSocket = io(`${process.env.NEXT_PUBLIC_SERVER_URL}:${process.env.NEXT_PUBLIC_SERVER_PORT}`);
-    saveInitialSocket(initialSocket);
+    createSocket("/");
   }, []);
 
   useEffect(() => {
+    const initialSocket = namespaceSockets["/"];
+
     if (initialSocket) {
-      const handleConnect = () => {
+      const handleConnect = async () => {
         console.log("CLIENT: DEFAULT SOCKET has connected 'connect'");
 
-        initialSocket.emit(actionTypes.INITIAL_SOCKET_CONNECTED);
-
-        // Now that we know the socket is connected, set up the other event listeners
         initialSocket.on(actionTypes.SERVER_TO_INITIAL_SOCKET, (data) => {
           console.log('CLIENT: receives "welcome":', data);
         });
 
-        initialSocket.on(actionTypes.DB_NAMESPACES, (db_namespaces) => {
-          console.log("db_namespaces: ", db_namespaces); //objects
-          saveFetchedNamespaces(db_namespaces);
-        });
+        const ackResp = await initialSocket.emitWithAck(actionTypes.INITIAL_SOCKET_CONNECTED);
+        console.log("CLIENT initialSocket ackResp: ", ackResp);
+        saveFetchedNamespaces(ackResp.db_namespaces);
       };
 
       // Register the connect event handler
@@ -240,18 +298,16 @@ export function SocketContextProvider({ children }) {
         initialSocket.disconnect();
       };
     }
-  }, [initialSocket]);
+  }, [namespaceSockets["/"]]);
 
   return (
     <SocketContext.Provider
       value={{
         ...state,
-        saveFetchedNamespaces,
-        createSocket,
-        saveSelectedNamespaceEndpoint,
-        saveSelectedNamespaceRoomIDs,
         saveFetchedRooms,
-        joinRoom, //imported
+        joinNamespace,
+        joinRoom,
+        getTestUser,
       }}
     >
       {children}

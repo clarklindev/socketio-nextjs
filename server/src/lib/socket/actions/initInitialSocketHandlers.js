@@ -1,5 +1,5 @@
-import { fetchNamespaces } from "./fetchNamespaces.js";
-import { actionTypes } from "../../../types/ServerTypes.js";
+import { getNamespaces } from "./getNamespaces.js";
+import { actionTypes } from "../types/ServerTypes.js";
 
 export async function initInitialSocketHandlers(io) {
   console.log("SERVER: STEP 06 - FUNCTION initInitialSocketHandlers()");
@@ -12,10 +12,14 @@ export async function initInitialSocketHandlers(io) {
     //EMIT TO "CLIENT" SOCKET
     socket.emit(actionTypes.SERVER_TO_INITIAL_SOCKET, "Welcome to the server!");
 
-    socket.on(actionTypes.INITIAL_SOCKET_CONNECTED, async () => {
+    socket.on(actionTypes.INITIAL_SOCKET_CONNECTED, async (ackCallback) => {
       console.log("SERVER: FUNCTION fetchNamespaces()");
-      const namespaces = await fetchNamespaces(); // Fetch namespaces from the API
-      socket.emit(actionTypes.DB_NAMESPACES, namespaces || []);
+
+      const namespaces = await getNamespaces(); // Fetch namespaces from the API
+      console.log("SERVER: namespaces: ", namespaces);
+      ackCallback({
+        db_namespaces: namespaces || [],
+      });
     });
   });
 }

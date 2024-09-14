@@ -1,0 +1,5 @@
+.li {
+  list-style: none; /* Removes bullets or numbers */
+  padding: 0; /* Removes default padding */
+  margin: 0; /* Removes default margin */
+}

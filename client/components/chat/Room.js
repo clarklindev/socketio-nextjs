@@ -1,5 +1,6 @@
 import { useSocket } from "@/context/chat/SocketContext";
-import classes from "./Room.module.css";
+
+import styles from "./Room.module.css";
 
 export const Room = (props) => {
   const { joinRoom } = useSocket();
@@ -10,7 +11,7 @@ export const Room = (props) => {
   };
 
   return (
-    <div className={classes.room} onClick={(event, roomId) => clickHandler(event, roomId)}>
+    <div className={styles.room} onClick={(event, roomId) => clickHandler(event, roomId)}>
       {props.children}
     </div>
   );

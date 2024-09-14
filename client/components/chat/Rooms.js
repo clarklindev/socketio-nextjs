@@ -11,7 +11,7 @@ export const Rooms = () => {
   useEffect(() => {
     const fetchRooms = async () => {
       console.log("FUNCTION fetchRooms()");
-      if (selectedNamespaceRoomIDs.length > 0) {
+      if (selectedNamespaceRoomIDs && selectedNamespaceRoomIDs.length > 0) {
         try {
           const res = await fetch(
             `${process.env.NEXT_PUBLIC_SERVER_URL}:${

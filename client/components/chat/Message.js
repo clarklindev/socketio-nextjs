@@ -7,22 +7,25 @@ messageObj structure:
 {
   newMessage,
   date,
-  userName,
-  avatar
+  userId,
+  avatar,
+  roomId
 }
 
 */
+import classes from "./Message.module.css";
 
-export const Message = (messageObj) => {
+export const Message = ({ messageObj }) => {
   return (
-    <li>
+    <li className={classes.li}>
       <div className="user-image">
-        <img src={`${messageObj.avatar}`} />
+        <img src={messageObj.avatar} />
       </div>
 
       <div className="user-message">
         <div className="user-name-time">
-          {messageObj.userName} <span>{new Date(messageObj.date).toLocaleString()}</span>
+          {messageObj.userId}
+          {/* <span>{new Date(messageObj.date).toLocaleString()}</span> */}
         </div>
         <div className="message-text">{messageObj.newMessage}</div>
       </div>

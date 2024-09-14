@@ -3,13 +3,12 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 
 import { useSocket } from "@/context/chat/SocketContext";
-import { validateImageUrl } from "@/lib/validation/validateImage";
+import { validateImageUrl } from "@/lib/validation/actions/validateImage";
 
 import classes from "./Namespace.module.css";
 
 export function Namespace(props) {
-  const { namespaceSockets, selectedNamespaceEndpoint, createSocket, saveSelectedNamespaceEndpoint, saveSelectedNamespaceRoomIDs } =
-    useSocket();
+  const { joinNamespace } = useSocket();
   const { _id, name, image, endpoint, rooms } = props;
 
   const [isValid, setIsValid] = useState(false);
@@ -84,9 +83,7 @@ export function Namespace(props) {
     console.log("endpoint: ", endpoint);
     console.log("rooms IDs: ", rooms); //rooms is a list of id's part of retrieved namespace from db
 
-    saveSelectedNamespaceEndpoint(endpoint);
-    saveSelectedNamespaceRoomIDs(rooms);
-    createSocket(endpoint);
+    joinNamespace(endpoint, rooms);
   }
 
   // Validate image URL

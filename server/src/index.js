@@ -6,13 +6,13 @@ import cookieParser from "cookie-parser";
 import { Server as SocketIOServer } from "socket.io";
 
 import { connectToDatabase } from "./lib/socket/db/db.js";
-import { initInitialSocketHandlers } from "./lib/socket/namespace/initInitialSocketHandlers.js";
-import { initSocketHandlers } from "./lib/socket/namespace/initSocketHandlers.js";
-import { shutdownSocketHandler } from "./lib/socket/namespace/shutdownSocketHandler.js";
+import { initInitialSocketHandlers } from "./lib/socket/actions/initInitialSocketHandlers.js";
+import { initSocketHandlers } from "./lib/socket/actions/initSocketHandlers.js";
+import { shutdownSocketHandler } from "./lib/socket/actions/shutdownSocketHandler.js";
 
 //routes
-import socketRoutes from "./api/socket/routes/index.js";
-import validateRoutes from "./api/validate/routes/index.js";
+import routes from "./api/socket/routes/index.js";
+import { baseRoute } from "./api/socket/routes/routePaths.js";
 
 async function init() {
   let io;
@@ -38,8 +38,7 @@ async function init() {
     app.use(express.json()); //parse json application/json
 
     //routes
-    app.use("/api/socket", socketRoutes);
-    app.use("/api/validate", validateRoutes);
+    app.use(baseRoute, routes);
 
     //error handling - 404 errors - catch-all for any requests that don't match existing routes (handle all misc routes)
     app.use((req, res) => {

@@ -1,0 +1,12 @@
+export const baseRoute = "/api/socket";
+
+export const routes = {
+  DEFAULT_ROUTE: "/",
+  NAMESPACES: "/namespaces",
+  NAMESPACES_ADDROOM: "/namespaces/add-room",
+  ROOMS: "/rooms",
+  ROOMS_ADDMESSAGE: "/rooms/add-message",
+  ROOMS_GETMESSAGES: "/rooms/get-messages",
+  USER_ADDUSER: "/user/add-user",
+  VALIDATEURL: "/validateUrl",
+};
