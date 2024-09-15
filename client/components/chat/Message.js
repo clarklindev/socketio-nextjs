@@ -4,8 +4,8 @@
 
 messageObj structure:
 
-{
-  newMessage,
+{d
+  message,
   date,
   userId,
   avatar,
@@ -25,9 +25,9 @@ export const Message = ({ messageObj }) => {
       <div className="user-message">
         <div className="user-name-time">
           {messageObj.userId}
-          {/* <span>{new Date(messageObj.date).toLocaleString()}</span> */}
+          <div className={classes.date}>{new Date(messageObj.date).toLocaleString()}</div>
         </div>
-        <div className="message-text">{messageObj.newMessage}</div>
+        <div className="message-text">{messageObj.message}</div>
       </div>
     </li>
   );

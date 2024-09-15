@@ -101,6 +101,12 @@ export function SocketContextProvider({ children }) {
           user: action.payload,
         };
 
+      case actionTypes.SAVE_NEW_MESSAGE:
+        return {
+          ...state,
+          roomHistory: [...state.roomHistory, action.payload],
+        };
+
       default:
         return state;
     }
@@ -155,16 +161,23 @@ export function SocketContextProvider({ children }) {
       return;
     }
 
-    const { history, roomId, numUsers, roomName } = roomDetails;
+    const { roomHistory, roomId, numUsers, roomName } = roomDetails;
 
     dispatch({
       type: actionTypes.SAVE_ROOM_DETAILS,
       payload: {
-        roomHistory: history,
+        roomHistory,
         numUsers,
         roomName,
         selectedRoomId: roomId,
       },
+    });
+  }
+
+  function addNewMessageById(messageId) {
+    dispatch({
+      type: actionTypes.SAVE_NEW_MESSAGE,
+      payload: messageId,
     });
   }
 
@@ -237,7 +250,7 @@ export function SocketContextProvider({ children }) {
     console.log("ackResp: ", ackResp); //response from server ackResp = {numUsers: socketCount, thisRoomsHistory}
 
     //save room history
-    saveRoomDetails({ history: ackResp.thisRoomsHistory, numUsers: ackResp.numUsers, roomId, roomName: ackResp.roomName }); //history etc.
+    saveRoomDetails({ roomHistory: ackResp.thisRoomsHistory, numUsers: ackResp.numUsers, roomId, roomName: ackResp.roomName }); //history etc.
   }
 
   async function getTestUser() {
@@ -307,6 +320,7 @@ export function SocketContextProvider({ children }) {
         saveFetchedRooms,
         joinNamespace,
         joinRoom,
+        addNewMessageById,
         getTestUser,
       }}
     >

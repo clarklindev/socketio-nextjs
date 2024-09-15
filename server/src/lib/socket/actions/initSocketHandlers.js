@@ -114,15 +114,16 @@ export async function initSocketHandlers(io) {
 
         const socketRoom = [...rooms][0]; //string id
         const currentRoom = [...rooms][1]; //string id
-        console.log("SERVER socket room: ", socketRoom);
+        console.log("SERVER socket's own room: ", socketRoom);
         console.log("SERVER current room : ", currentRoom);
 
         //SERVER: push message on rooms history[] array
-        addMessage(messageObj);
+        const response = await addMessage(messageObj);
+        const { status, room, newMessage } = response;
 
         // send out this messageObj to everyone including the sender
         //io.of() means -> all (connected) sockets in current room
-        io.of(namespace.endpoint).in(currentRoom).emit(actionTypes.SERVER_BROADCAST_TO_ROOM_SOCKETS, messageObj);
+        io.of(namespace.endpoint).in(currentRoom).emit(actionTypes.SERVER_BROADCAST_TO_ROOM_SOCKETS, newMessage._id);
       });
 
       socket.on(actionTypes.SOCKET_TO_SERVER, (dataFromClient) => {

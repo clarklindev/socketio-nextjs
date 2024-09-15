@@ -11,6 +11,7 @@ export const actionTypes = {
   SAVE_FETCHED_DB_ROOMS: "save_fetched_db_rooms",
   SAVE_ROOM_DETAILS: "save_room_details",
   SAVE_USER: "save_user",
+  SAVE_NEW_MESSAGE: "save_new_message",
 
   //SERVER + CLIENT SHARED
   SERVER_TO_INITIAL_SOCKET: "server_to_initial_socket", //client/app/chat/page
@@ -19,4 +20,5 @@ export const actionTypes = {
   JOIN_ROOM: "join_room", //context
   SOCKET_TO_ROOM: "socket_to_room", //socket to room
   GET_MESSAGES_FROM_ID: "get_messages_from_id",
+  SERVER_BROADCAST_TO_ROOM_SOCKETS: "server_broadcast_to_room_sockets",
 };

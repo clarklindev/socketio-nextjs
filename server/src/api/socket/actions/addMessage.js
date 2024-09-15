@@ -3,11 +3,11 @@ import Room from "../../../lib/socket/db/models/RoomModel.js";
 
 export async function addMessage(req, res, next) {
   try {
-    const { newMessage, date, userId, avatar, roomId, endpoint } = req.body;
+    const { message, date, userId, avatar, roomId, endpoint } = req.body;
     console.log("API addMessage: ", req.body);
 
     // Validate input
-    if (!newMessage || !userId || !roomId) {
+    if (!message || !userId || !roomId) {
       return res.status(400).json({ error: "Missing required fields" });
     }
     // Create a new message document
@@ -31,7 +31,7 @@ export async function addMessage(req, res, next) {
     }
     // Respond with the updated room and message
     res.status(200).json({
-      message: "Message added successfully",
+      status: "Message added successfully",
       room: updatedRoom, // Includes the updated room and its populated history
       newMessage: savedMessage,
     });

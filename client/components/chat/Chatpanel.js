@@ -16,26 +16,34 @@ export const Chatpanel = () => {
       if (namespaceSockets && namespaceSockets[selectedNamespaceEndpoint]) {
         const socket = namespaceSockets[selectedNamespaceEndpoint];
 
-        try {
-          // fetch messages with socket
-          const ackResp = await socket.emitWithAck(actionTypes.GET_MESSAGES_FROM_ID, {
-            ids: roomHistory,
-          });
+        console.log("CLIENT roomHistory: ", roomHistory);
+        if (roomHistory && roomHistory.length) {
+          try {
+            // fetch messages with socket BUT if no roomHistory skip..
+            const ackResp = await socket.emitWithAck(actionTypes.GET_MESSAGES_FROM_ID, {
+              ids: roomHistory,
+            });
 
-          console.log("CLIENT GET_MESSAGES_FROM_ID ackResp: ", ackResp);
+            console.log("CLIENT GET_MESSAGES_FROM_ID ackResp: ", ackResp);
 
-          //build the DOM
-          const messageDOM = ackResp.messageObjs.length
-            ? ackResp.messageObjs.map((message, index) => <Message key={index} messageObj={message} />)
-            : null;
-          setHistoryDOM(messageDOM);
-        } catch (error) {
-          console.error("Error fetching messages: ", error);
+            //build the DOM
+            const messageDOM = ackResp.messageObjs.length
+              ? ackResp.messageObjs
+                  .slice() // Create a shallow copy to avoid mutating the original array
+                  .reverse() // Reverse the copied array
+                  .map((message, index) => <Message key={index} messageObj={message} />)
+              : null;
+            setHistoryDOM(messageDOM);
+          } catch (error) {
+            console.error("Error fetching messages: ", error);
+          }
+        } else {
+          setHistoryDOM();
         }
       }
     };
     fetchMessages();
-  }, [roomHistory]);
+  }, [selectedRoomId, selectedNamespaceEndpoint]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -46,7 +54,7 @@ export const Chatpanel = () => {
 
     //NOTE: so after user login - the userId should be saved
     const messageData = {
-      newMessage: message,
+      message,
       avatar: "https://via.placeholder.com/30",
       userId: "66e29c29a557f6e5a70d7572", //using test userId
       endpoint: selectedNamespaceEndpoint,

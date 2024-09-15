@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 
 const messageSchema = new Schema({
-  newMessage: { type: String, required: true },
+  message: { type: String, required: true },
   date: { type: Date, default: Date.now }, // Use default to set the current date/time if not provided
   userId: {
     type: Schema.Types.ObjectId,

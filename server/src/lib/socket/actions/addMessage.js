@@ -18,7 +18,7 @@ export async function addMessage(messageObj) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const responseJSON = await response.json();
-    console.log("responseJSON: ", responseJSON); //{room, message, newMessage}
+    console.log("responseJSON: ", responseJSON); //{status, room, newMessage}
     return responseJSON;
   } catch (error) {
     console.error("Failed to add message:", error);
