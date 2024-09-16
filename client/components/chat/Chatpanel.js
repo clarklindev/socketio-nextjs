@@ -42,7 +42,7 @@ export const Chatpanel = () => {
       }
     };
     fetchMessages();
-  }, [selectedRoomId]);
+  }, [roomHistory]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -72,39 +72,34 @@ export const Chatpanel = () => {
 
   return (
     <div className={styles["chat-panel"]}>
-      {/* header */}
-      {selectedRoomId ? (
-        <>
-          <div className={styles["room-header"]}>
-            <div>
-              current room:<span>{roomName}</span>
-            </div>
+      <div className={styles["top"]}>
+        <h2 className={styles["room-heading"]}>hello</h2>
+        <div>
+          current room:<span>{selectedRoomId && roomName}</span>
+        </div>
 
-            <div>
-              number of users:<span>{numUsers}</span>
-            </div>
-            <div className="search">
-              <span className="glyphicon glyphicon-search"></span>
-              <input type="text" id="search-box" placeholder="Search" />
-            </div>
+        <div>
+          number of users:<span>{selectedRoomId && numUsers}</span>
+        </div>
+        <div className="search">
+          <span className="glyphicon glyphicon-search"></span>
+          <input type="text" id="search-box" placeholder="Search" />
+        </div>
+      </div>
+      <div className={styles["middle"]}>
+        <div className={styles["message-form"]}>
+          {/* message history */}
+          <div className={styles["messages"]} id="message-history">
+            {selectedRoomId && historyDOM}
           </div>
-          {/* message form */}
-          <div className={styles["message-form"]}>
-            <h2 className="room-heading">hello</h2>
-
-            {/* message history */}
-            <div className={styles["messages"]} id="message-history">
-              {historyDOM}
-            </div>
-
-            {/* form */}
-            <form id="form" onSubmit={handleSubmit}>
-              <input id="input" name="message" autoComplete="off" value={message} onChange={handleChange} />
-              <button type="submit">Send</button>
-            </form>
-          </div>
-        </>
-      ) : null}
+        </div>
+      </div>
+      <div className={styles["bottom"]}>
+        <form id="form" onSubmit={handleSubmit}>
+          <input id="input" name="message" autoComplete="off" value={message} onChange={handleChange} />
+          <button type="submit">Send</button>
+        </form>
+      </div>
     </div>
   );
 };

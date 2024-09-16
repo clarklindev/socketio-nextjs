@@ -190,6 +190,10 @@ export function SocketContextProvider({ children }) {
     //NOTE: the namespace endpoint (ns.endpoint) has prefix '/' in db
     console.log(`CONTEXT: FUNCTION createSocket(${endpoint})`);
     const socket = io(`${process.env.NEXT_PUBLIC_SERVER_URL}:${process.env.NEXT_PUBLIC_SERVER_PORT}${endpoint}`);
+    socket.on(actionTypes.CONNECT, async () => {
+      console.log(`CONNECT: ${endpoint}`);
+    });
+
     dispatch({
       type: actionTypes.CREATE_SOCKET,
       payload: { endpoint, socket },
@@ -203,7 +207,10 @@ export function SocketContextProvider({ children }) {
     saveSelectedNamespaceRoomIDs(rooms);
     saveRoomDetails(); //no prop means reset room state: selectedRoomId, roomHistory, numUsers
 
-    if (!namespaceSockets[endpoint] || !namespaceSockets[endpoint].connected) {
+    const socket = namespaceSockets[endpoint];
+    console.log("socket: ", socket);
+
+    if (!socket || !socket.connected) {
       createSocket(endpoint);
     } else {
       console.log(`namespace already exists: (${endpoint})`);

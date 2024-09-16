@@ -2,21 +2,40 @@
   display: flex;
   flex-direction: column;
   height: 100vh; /* or any height that fits your layout */
+  overflow: hidden;
 }
 
-.room-header {
-  flex-shrink: 0; /* Prevent the header from shrinking */
-  background: blue;
+.top {
+  max-height: 100px;
+}
+
+.room-heading {
+  background: purple;
+  flex: 1;
+  max-height: 50px;
+}
+
+/* ---------------------------------------- */
+
+.middle {
+  flex: 1 1 auto; /* Grow and shrink as needed, but take up remaining space */
+  overflow-y: auto; /* Scrollable if content exceeds height */
 }
 
 .message-form {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  height: 100%;
 }
 
 .messages {
-  flex-grow: 1;
-  background: hotpink;
+  flex: 1;
   overflow-y: scroll;
+  background: hotpink;
+}
+
+/* ---------------------------------------- */
+
+.bottom {
+  max-height: 50px;
 }
