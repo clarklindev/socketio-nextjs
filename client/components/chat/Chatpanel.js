@@ -13,37 +13,36 @@ export const Chatpanel = () => {
 
   useEffect(() => {
     const fetchMessages = async () => {
-      if (namespaceSockets && namespaceSockets[selectedNamespaceEndpoint]) {
+      if (namespaceSockets && namespaceSockets[selectedNamespaceEndpoint] && roomHistory && roomHistory.length) {
         const socket = namespaceSockets[selectedNamespaceEndpoint];
 
         console.log("CLIENT roomHistory: ", roomHistory);
-        if (roomHistory && roomHistory.length) {
-          try {
-            // fetch messages with socket BUT if no roomHistory skip..
-            const ackResp = await socket.emitWithAck(actionTypes.GET_MESSAGES_FROM_ID, {
-              ids: roomHistory,
-            });
 
-            console.log("CLIENT GET_MESSAGES_FROM_ID ackResp: ", ackResp);
+        try {
+          // fetch messages with socket BUT if no roomHistory skip..
+          const ackResp = await socket.emitWithAck(actionTypes.GET_MESSAGES_FROM_ID, {
+            ids: roomHistory,
+          });
 
-            //build the DOM
-            const messageDOM = ackResp.messageObjs.length
-              ? ackResp.messageObjs
-                  .slice() // Create a shallow copy to avoid mutating the original array
-                  .reverse() // Reverse the copied array
-                  .map((message, index) => <Message key={index} messageObj={message} />)
-              : null;
-            setHistoryDOM(messageDOM);
-          } catch (error) {
-            console.error("Error fetching messages: ", error);
-          }
-        } else {
-          setHistoryDOM();
+          console.log("CLIENT GET_MESSAGES_FROM_ID ackResp: ", ackResp);
+
+          //build the DOM
+          const messageDOM = ackResp.messageObjs.length
+            ? ackResp.messageObjs
+                .slice() // Create a shallow copy to avoid mutating the original array
+                .reverse() // Reverse the copied array
+                .map((message, index) => <Message key={index} messageObj={message} />)
+            : null;
+          setHistoryDOM(messageDOM);
+        } catch (error) {
+          console.error("Error fetching messages: ", error);
         }
+      } else {
+        setHistoryDOM();
       }
     };
     fetchMessages();
-  }, [selectedRoomId, selectedNamespaceEndpoint]);
+  }, [selectedRoomId]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();

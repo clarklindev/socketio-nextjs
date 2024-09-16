@@ -16,7 +16,7 @@ export async function initInitialSocketHandlers(io) {
       console.log("SERVER: FUNCTION fetchNamespaces()");
 
       const namespaces = await getNamespaces(); // Fetch namespaces from the API
-      console.log("SERVER: namespaces: ", namespaces);
+      // console.log("SERVER: namespaces: ", namespaces);
       ackCallback({
         db_namespaces: namespaces || [],
       });

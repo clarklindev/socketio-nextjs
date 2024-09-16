@@ -22,6 +22,7 @@ const initialState = {
   selectedNamespaceEndpoint: null, //a global variable we update when the user updates the namespace
   selectedNamespaceRoomIDs: [], //after namespace selected -> this is select namespaces' rooms (just an array of mongoose object IDs)
   db_rooms: [], //fetched room objects from DB
+
   //room related
   selectedRoomId: null,
   roomHistory: [],
@@ -36,7 +37,7 @@ const SocketContext = createContext({
   //other functions
   saveFetchedRooms: (db_rooms) => {},
   joinRoom: (roomId) => {},
-  joinNamespace: () => {},
+  joinNamespace: (endpoint, rooms) => {},
 });
 
 // Custom Hook for Using Socket
@@ -147,7 +148,10 @@ export function SocketContextProvider({ children }) {
   }
 
   function saveRoomDetails(roomDetails) {
+    console.log("CLIENT: saveRoomDetails()");
+
     if (!roomDetails) {
+      console.log("CLIENT: no room details");
       //do a reset
       dispatch({
         type: actionTypes.SAVE_ROOM_DETAILS,
@@ -158,20 +162,19 @@ export function SocketContextProvider({ children }) {
           roomName: null,
         },
       });
-      return;
+    } else {
+      const { roomHistory, roomId, numUsers, roomName } = roomDetails;
+
+      dispatch({
+        type: actionTypes.SAVE_ROOM_DETAILS,
+        payload: {
+          roomHistory,
+          numUsers,
+          roomName,
+          selectedRoomId: roomId,
+        },
+      });
     }
-
-    const { roomHistory, roomId, numUsers, roomName } = roomDetails;
-
-    dispatch({
-      type: actionTypes.SAVE_ROOM_DETAILS,
-      payload: {
-        roomHistory,
-        numUsers,
-        roomName,
-        selectedRoomId: roomId,
-      },
-    });
   }
 
   function addNewMessageById(messageId) {
@@ -191,23 +194,24 @@ export function SocketContextProvider({ children }) {
       type: actionTypes.CREATE_SOCKET,
       payload: { endpoint, socket },
     });
-    return socket;
   }
 
   async function joinNamespace(endpoint, rooms) {
+    console.log("=====================================================");
+    console.log("CLIENT joinNamespace()");
     saveSelectedNamespaceEndpoint(endpoint);
     saveSelectedNamespaceRoomIDs(rooms);
     saveRoomDetails(); //no prop means reset room state: selectedRoomId, roomHistory, numUsers
 
-    if (!namespaceSockets[endpoint]) {
-      const socket = await createSocket(endpoint);
-      return socket;
+    if (!namespaceSockets[endpoint] || !namespaceSockets[endpoint].connected) {
+      createSocket(endpoint);
     } else {
       console.log(`namespace already exists: (${endpoint})`);
     }
   }
 
   async function joinRoom(roomId) {
+    console.log("FUNCTION joinRoom----------------------------------------------------------");
     console.log("roomId: ", roomId);
     console.log("current endpoint: ", selectedNamespaceEndpoint);
     // CLIENT
@@ -217,7 +221,10 @@ export function SocketContextProvider({ children }) {
 
     //lesson 40 - emitWithAck() ie no callback / using async
     /* THIS IS WHAT SERVER sends back with ackCallback():
+    //...
     socket.on('joinRoom', async (roomObj, ackCallback)=>{
+
+      //NOTE: SERVER SENDS THIS BACK TO CLIENT
       ackCallback({
         numUsers:socketCount,
         thisRoomsHistory
@@ -225,10 +232,10 @@ export function SocketContextProvider({ children }) {
     }
     */
     const socket = namespaceSockets[selectedNamespaceEndpoint];
-    console.log("socket: ", socket);
+    console.log(`joinRoom(${roomId}) CLIENT socket: ${socket}`);
 
     const ackResp = await socket.emitWithAck(actionTypes.JOIN_ROOM, {
-      roomId: roomId,
+      roomId,
       endpoint: selectedNamespaceEndpoint,
     });
     //--------------------------------------------------------------------------
@@ -247,7 +254,7 @@ export function SocketContextProvider({ children }) {
     //   }
     // };
 
-    console.log("ackResp: ", ackResp); //response from server ackResp = {numUsers: socketCount, thisRoomsHistory}
+    console.log("ackResp: ", ackResp); //response from server ackResp = {numUsers, thisRoomsHistory, roomName}
 
     //save room history
     saveRoomDetails({ roomHistory: ackResp.thisRoomsHistory, numUsers: ackResp.numUsers, roomId, roomName: ackResp.roomName }); //history etc.

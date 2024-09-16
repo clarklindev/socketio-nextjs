@@ -13,7 +13,7 @@ export const Namespaces = () => {
     const namespacesDOM =
       db_namespaces?.length > 0 &&
       db_namespaces.map((ns, index) => {
-        return <Namespace key={index} {...ns} />;
+        return <Namespace key={index} settings={ns} />;
       });
 
     setDb_namespacesDOM(namespacesDOM);
@@ -46,6 +46,9 @@ export const Namespaces = () => {
     // Function to clean up listeners
     const cleanupListeners = () => {
       if (socket) {
+        console.log("=========================================================");
+        console.log("CLEANUP==================================================");
+        console.log("=========================================================");
         console.log("CLIENT: useEffect() cleanup cleanupListeners() called");
         socket.off("connect");
         socket.off("welcome");

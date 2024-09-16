@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Room from "../../../lib/socket/db/models/RoomModel.js";
 
 export async function getRooms(req, res) {
+  console.log("SERVER: getRooms()");
   const { ids } = req.query; // Expecting a comma-separated list of ids
 
   if (!ids) {

@@ -7,9 +7,9 @@ import { validateImageUrl } from "@/lib/validation/actions/validateImage";
 
 import classes from "./Namespace.module.css";
 
-export function Namespace(props) {
+export function Namespace({ settings }) {
   const { joinNamespace } = useSocket();
-  const { _id, name, image, endpoint, rooms } = props;
+  const { _id, name, image, endpoint, rooms } = settings;
 
   const [isValid, setIsValid] = useState(false);
 

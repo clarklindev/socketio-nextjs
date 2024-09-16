@@ -23,10 +23,10 @@ export async function validateUrl(req, res) {
     if (response.ok) {
       const contentType = response.headers.get("Content-Type");
 
-      console.log(`URL: ${url}`);
-      console.log(`Status: ${response.status} ${response.statusText}`);
-      console.log(`Content-Type: ${contentType}`);
-      console.log("-------");
+      // console.log(`URL: ${url}`);
+      // console.log(`Status: ${response.status} ${response.statusText}`);
+      // console.log(`Content-Type: ${contentType}`);
+      // console.log("-------");
 
       // Handle redirects
       if (response.redirected) {

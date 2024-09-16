@@ -36,20 +36,18 @@ export async function initSocketHandlers(io) {
     io.of(namespace.endpoint).on(actionTypes.CONNECTION, (socket) => {
       console.log(`${socket.id} has connected to ${namespace.endpoint}`);
       //roomObj passed from CLIENTSIDE - joinRoom.js - joinRoom() see SocketContext: roomObj is { roomId, selectedNamespaceEndpoint }
-      //lesson 40 acknowlege functions - ackCallBack()
+      //lesson 40 acknowlege functions - ackCallback()
       //NOTE: roomObj - includes information necessary for the server to understand which room the client wants to join, such as namespaceId and roomTitle.
       //NOTE: CLIENTSIDE emits 'joinRoom', and an object received as 'roomObj' {roomId, selectedNamespaceEndpoint} from SocketContext.js joinRoom
       socket.on(actionTypes.JOIN_ROOM, async (roomObj, ackCallback) => {
         //need to fetch the history
-
-        console.log(`join room...`);
         console.log("-------------------------------------------------");
+        console.log(`SERVER: join room...`);
         console.log("passed in roomObj BEGIN: ");
         Object.entries(roomObj).forEach(([key, value]) => {
           console.log(`${key}: ${value}`);
         });
         console.log("passed in roomObj END: ");
-        console.log("-------------------------------------------------");
 
         //NOTE: namespaces/namespace is (SERVER namespaces/namespace), which makes thisNs a server concept
         const thisNs = namespaces.find((namespace) => namespace.endpoint === roomObj.endpoint);
@@ -60,9 +58,10 @@ export async function initSocketHandlers(io) {
         // thisRoomObj - the server-side (from DB) representation of the room, fetched from the server's internal data structure - It contains the room's details as they are stored on the server
         // NOTE: roomObj.roomId is passed from clientside
         const thisRoomObj = roomObjs.find((room) => room._id === roomObj.roomId);
-        console.log("thisRoomObj: ", thisRoomObj);
+        console.log("SERVER: thisRoomObj: ", thisRoomObj);
 
         const thisRoomsHistory = thisRoomObj.history;
+        console.log("SERVER: thisRoomsHistory: ", thisRoomsHistory);
 
         // make client leave all rooms, because application design dictates the client can only be in one room at a time
         leaveRooms(socket, socket.rooms); //socket.rooms returns a Set()
@@ -83,13 +82,14 @@ export async function initSocketHandlers(io) {
         });
       });
 
-      socket.on(actionTypes.GET_MESSAGES_FROM_ID, async (payload, ackCallBack) => {
+      socket.on(actionTypes.GET_MESSAGES_FROM_ID, async (payload, ackCallback) => {
+        console.log("SERVER: actionTypes.GET_MESSAGES_FROM_ID:");
         const { ids } = payload;
         console.log("socket payload: ", ids);
         const messageObjs = await getMessages(ids);
         console.log("messageObjs: ", messageObjs);
 
-        ackCallBack({
+        ackCallback({
           messageObjs,
         });
       });
