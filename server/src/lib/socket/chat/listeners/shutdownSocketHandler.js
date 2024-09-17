@@ -1,4 +1,4 @@
-import { disconnectFromDatabase } from "../db/db.js";
+import { disconnectFromDatabase } from "../actions/disconnectFromDatabase.js";
 
 //NOTE: THIS WORKS IN LINUX but not in WINDOWS
 /*
@@ -13,8 +13,7 @@ import { disconnectFromDatabase } from "../db/db.js";
   Shutdown complete.
   */
 
-// Handle graceful shutdown
-export const shutdownSocketHandler = async (io, signal) => {
+async function handleShutdown(io, signal) {
   console.log(`FUNCTION shutdownHandler(${signal})`);
 
   try {
@@ -49,4 +48,16 @@ export const shutdownSocketHandler = async (io, signal) => {
     console.log("Shutdown complete.");
     process.exit(0); // Ensure process exits after cleanup
   }
+}
+
+// Handle graceful shutdown
+export const shutdownSocketHandler = async (io) => {
+  //graceful shutdown mechanism to close connections and cleanup resources when the server is terminated
+  process.on("SIGTERM", async () => {
+    handleShutdown(io, "SIGTERM");
+  });
+  //handle Ctrl+C in the terminal
+  process.on("SIGINT", async () => {
+    handleShutdown(io, "SIGINT");
+  });
 };

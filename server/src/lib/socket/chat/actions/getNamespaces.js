@@ -1,4 +1,4 @@
-import { routes, baseRoute } from "../../../api/socket/routes/routePaths.js";
+import { routes, baseRoute } from "../../../../api/socket/chat/routes/routePaths.js";
 
 export async function getNamespaces() {
   try {

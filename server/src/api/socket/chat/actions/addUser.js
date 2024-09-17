@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import User from "../../../lib/socket/db/models/UserModel.js";
+import User from "../../../../lib/socket/chat/models/UserModel.js";
 
 export async function addUser(req, res, next) {
   console.log("FUNCTION addUser():");

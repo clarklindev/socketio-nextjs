@@ -5,14 +5,13 @@ import http from "http";
 import cookieParser from "cookie-parser";
 import { Server as SocketIOServer } from "socket.io";
 
-import { connectToDatabase } from "./lib/socket/db/db.js";
-import { initInitialSocketHandlers } from "./lib/socket/actions/initInitialSocketHandlers.js";
-import { initSocketHandlers } from "./lib/socket/actions/initSocketHandlers.js";
-import { shutdownSocketHandler } from "./lib/socket/actions/shutdownSocketHandler.js";
+import { connectToDatabase } from "./lib/socket/chat/actions/connectToDatabase.js";
+import { initSocketHandlers } from "./lib/socket/chat/listeners/initSocketHandlers.js";
+import { shutdownSocketHandler } from "./lib/socket/chat/listeners/shutdownSocketHandler.js";
 
 //routes
-import routes from "./api/socket/routes/index.js";
-import { baseRoute } from "./api/socket/routes/routePaths.js";
+import routes from "./api/socket/chat/routes/index.js";
+import { baseRoute } from "./api/socket/chat/routes/routePaths.js";
 
 async function init() {
   let io;
@@ -20,7 +19,7 @@ async function init() {
 
   try {
     //STEP 01 - FUNCTION connectToDatabase()
-    const result = await connectToDatabase(process.env.MONGODB_URI, process.env.MONGODB_DB);
+    await connectToDatabase(process.env.MONGODB_URI, process.env.MONGODB_DB);
 
     const corsOptions = {
       origin: `${process.env.FRONTEND_URL}:${process.env.FRONTEND_PORT}`, // Replace with connecting frontend URL to "allow" frontend to connect
@@ -70,22 +69,14 @@ async function init() {
 
       //initialize listeners (ORDER IMPORTANT: initInitialSocketHandlers requires server api endpoint so server needs to be running first)
       try {
-        await initInitialSocketHandlers(io); //STEP 06 - FUNCTION initInitialSocketHandlers()
-        await initSocketHandlers(io); //STEP 07 - FUNCTION initSocketHandlers()
+        await initSocketHandlers(io); //STEP 06 & STEP 07 - FUNCTION initSocketHandlers()
         console.log("READY...");
       } catch (error) {
         console.error("error initializing handlers: ", error);
       }
     });
 
-    //graceful shutdown mechanism to close connections and cleanup resources when the server is terminated
-    process.on("SIGTERM", async () => {
-      shutdownSocketHandler(io, "SIGTERM");
-    });
-    //handle Ctrl+C in the terminal
-    process.on("SIGINT", async () => {
-      shutdownSocketHandler(io, "SIGINT");
-    });
+    shutdownSocketHandler(io);
   } catch (error) {
     console.error("Failed to start server:", error);
     process.exit(1); // Exit with failure code

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Message from "../../../lib/socket/db/models/MessageModel.js";
+import Message from "../../../../lib/socket/chat/models/MessageModel.js";
 
 export async function getMessages(req, res) {
   const { ids } = req.query; // Expecting a comma-separated list of ids

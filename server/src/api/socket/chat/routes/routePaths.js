@@ -1,4 +1,4 @@
-export const baseRoute = "/api/socket";
+export const baseRoute = "/api/socket/chat";
 
 export const routes = {
   DEFAULT_ROUTE: "/",
@@ -8,5 +8,5 @@ export const routes = {
   ROOMS_ADDMESSAGE: "/rooms/add-message",
   ROOMS_GETMESSAGES: "/rooms/get-messages",
   USER_ADDUSER: "/user/add-user",
-  VALIDATEURL: "/validateUrl",
+  VALIDATEURL: "/validate-url",
 };

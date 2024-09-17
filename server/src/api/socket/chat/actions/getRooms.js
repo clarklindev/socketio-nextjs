@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Room from "../../../lib/socket/db/models/RoomModel.js";
+import Room from "../../../../lib/socket/chat/models/RoomModel.js";
 
 export async function getRooms(req, res) {
   console.log("SERVER: getRooms()");

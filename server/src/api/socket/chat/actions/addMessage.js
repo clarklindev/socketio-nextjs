@@ -1,5 +1,5 @@
-import Message from "../../../lib/socket/db/models/MessageModel.js";
-import Room from "../../../lib/socket/db/models/RoomModel.js";
+import Message from "../../../../lib/socket/chat/models/MessageModel.js";
+import Room from "../../../../lib/socket/chat/models/RoomModel.js";
 
 export async function addMessage(req, res, next) {
   try {

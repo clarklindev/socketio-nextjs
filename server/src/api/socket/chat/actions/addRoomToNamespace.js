@@ -1,5 +1,5 @@
-import Namespace from "../../../lib/socket/db/models/NamespaceModel.js";
-import Room from "../../../lib/socket/db/models/RoomModel.js";
+import Namespace from "../../../../lib/socket/chat/models/NamespaceModel.js";
+import Room from "../../../../lib/socket/chat/models/RoomModel.js";
 
 export async function addRoomToNamespace(req, res, next) {
   console.log("FUNCTION: addRoomToNamespace");

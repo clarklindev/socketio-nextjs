@@ -1,4 +1,4 @@
-import { baseRoute, routes } from "../../../api/socket/routes/routePaths.js";
+import { baseRoute, routes } from "../../../../api/socket/chat/routes/routePaths.js";
 
 //receives namespace to get rooms from...
 export async function getMessages(ids) {

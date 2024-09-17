@@ -1,4 +1,4 @@
-import Namespace from "../../../lib/socket/db/models/NamespaceModel.js";
+import Namespace from "../../../../lib/socket/chat/models/NamespaceModel.js";
 
 /*POSTMAN
 POST: http://localhost:3000/api/socket/namespaces

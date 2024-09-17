@@ -1,4 +1,4 @@
-import Namespace from "../../../lib/socket/db/models/NamespaceModel.js";
+import Namespace from "../../../../lib/socket/chat/models/NamespaceModel.js";
 
 export async function getNamespaces(req, res) {
   try {

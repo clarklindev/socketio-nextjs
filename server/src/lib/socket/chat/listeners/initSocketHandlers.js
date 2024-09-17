@@ -1,22 +1,32 @@
 import { actionTypes } from "../types/ServerTypes.js";
-import { addMessage } from "./addMessage.js";
-import { getMessages } from "./getMessages.js";
-import { getNamespaces } from "./getNamespaces.js";
-import { getRooms } from "./getRooms.js";
-
-function leaveRooms(socket, rooms) {
-  //NOTE: never leaves first room (which is socket itself's own room)
-  //you can also create a var i=0, then increment i++
-  //as forEach iterates in ascending order
-  Array.from(rooms).forEach((room, index) => {
-    //we dont want to leave the (socket.) sockets own room which is guaranteed to be first
-    if (index !== 0) {
-      socket.leave(room);
-    }
-  });
-}
+import { addMessage } from "../actions/addMessage.js";
+import { getMessages } from "../actions/getMessages.js";
+import { getNamespaces } from "../actions/getNamespaces.js";
+import { getRooms } from "../actions/getRooms.js";
+import { leaveRooms } from "../actions/leaveRooms.js";
 
 export async function initSocketHandlers(io) {
+  console.log("SERVER: STEP 06 - FUNCTION initInitialSocketHandlers()");
+  //set up connection event handlers
+  //actionTypes.CONNECTION 'connection' is when CLIENT: SocketContext calls const newSocket = io(`${process.env.NEXT_PUBLIC_SERVER_URL}:${process.env.NEXT_PUBLIC_SERVER_PORT}`);
+  //NOTE: THIS IS CALLED ONLY FOR CONNECTIONS TO DEFAULT NAMESPACE
+  io.on(actionTypes.CONNECTION, async (socket) => {
+    console.log(`SERVER: client (${socket.id}) connects to default namespace - io(${process.env.SERVER_URL}:${process.env.SERVER_PORT})`);
+    // console.log(socket.handshake);
+    //EMIT TO "CLIENT" SOCKET
+    socket.emit(actionTypes.SERVER_TO_INITIAL_SOCKET, "Welcome to the server!");
+
+    socket.on(actionTypes.INITIAL_SOCKET_CONNECTED, async (ackCallback) => {
+      console.log("SERVER: FUNCTION fetchNamespaces()");
+
+      const namespaces = await getNamespaces(); // Fetch namespaces from the API
+      // console.log("SERVER: namespaces: ", namespaces);
+      ackCallback({
+        db_namespaces: namespaces || [],
+      });
+    });
+  });
+
   //lesson 35
 
   // const thisNs = io.of(namespace.endpoint);
