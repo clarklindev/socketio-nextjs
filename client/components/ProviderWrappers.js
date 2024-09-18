@@ -2,12 +2,12 @@
 
 import React from "react";
 
-import { SocketContextProvider } from "@/context/chat/SocketContext";
+import { ChatContextProvider } from "@/context/socket/chat/ChatContext";
 
 const ProvidersWrapper = ({ children }) => {
   return (
     <>
-      <SocketContextProvider>{children}</SocketContextProvider>
+      <ChatContextProvider>{children}</ChatContextProvider>
     </>
   );
 };

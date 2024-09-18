@@ -2,8 +2,8 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 
-import { useSocket } from "@/context/chat/SocketContext";
-import { validateImageUrl } from "@/lib/validation/actions/validateImage";
+import { useSocket } from "@/context/socket/chat/ChatContext";
+import { validateImage } from "@/lib/validation/actions/validateImage";
 
 import classes from "./Namespace.module.css";
 
@@ -15,7 +15,7 @@ export function Namespace({ settings }) {
 
   useEffect(() => {
     const checkImage = async () => {
-      const valid = await validateImageUrl(image); //'image' is url of the image
+      const valid = await validateImage(image); //'image' is url of the image
       setIsValid(valid);
     };
     checkImage();

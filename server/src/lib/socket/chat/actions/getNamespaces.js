@@ -3,6 +3,8 @@ import { routes, baseRoute } from "../../../../api/socket/chat/routes/routePaths
 export async function getNamespaces() {
   try {
     const apiUrl = `${process.env.SERVER_URL}:${process.env.SERVER_PORT}${baseRoute}${routes.NAMESPACES}`;
+    console.log("apiUrl: ", apiUrl);
+
     const response = await fetch(apiUrl);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);

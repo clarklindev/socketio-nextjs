@@ -1,7 +1,7 @@
 export async function addUser(userObj) {
   try {
     console.log("before fetch()...");
-    const api_endpoint = "/api/socket/user/add-user";
+    const api_endpoint = "/api/socket/chat/user/add-user";
     const fullUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}:${process.env.NEXT_PUBLIC_SERVER_PORT}${api_endpoint}`;
     const res = await fetch(fullUrl, {
       method: "POST",

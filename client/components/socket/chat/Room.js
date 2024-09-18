@@ -1,4 +1,4 @@
-import { useSocket } from "@/context/chat/SocketContext";
+import { useSocket } from "@/context/socket/chat/ChatContext";
 
 import styles from "./Room.module.css";
 

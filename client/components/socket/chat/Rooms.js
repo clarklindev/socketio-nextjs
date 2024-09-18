@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { useSocket } from "@/context/chat/SocketContext";
+import { useSocket } from "@/context/socket/chat/ChatContext";
 import { Room } from "./Room";
 
 import classes from "./Rooms.module.css";
@@ -16,7 +16,7 @@ export const Rooms = () => {
           const res = await fetch(
             `${process.env.NEXT_PUBLIC_SERVER_URL}:${
               process.env.NEXT_PUBLIC_SERVER_PORT
-            }/api/socket/rooms?ids=${selectedNamespaceRoomIDs.join(",")}`
+            }/api/socket/chat/rooms?ids=${selectedNamespaceRoomIDs.join(",")}`
           );
           const data = await res.json();
           console.log("rooms: ", data);

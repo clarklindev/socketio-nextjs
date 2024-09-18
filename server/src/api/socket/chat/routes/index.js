@@ -6,7 +6,6 @@ import { addRoomToNamespace } from "../actions/addRoomToNamespace.js";
 import { getNamespaces } from "../actions/getNamespaces.js";
 import { getRooms } from "../actions/getRooms.js";
 import { addMessage } from "../actions/addMessage.js";
-import { validateUrl } from "../actions/validateUrl.js";
 import { addUser } from "../actions/addUser.js";
 import { getMessages } from "../actions/getMessages.js";
 
@@ -26,7 +25,5 @@ router.post(routes.ROOMS_ADDMESSAGE, addMessage);
 router.get(routes.ROOMS_GETMESSAGES, getMessages);
 //api/socket/user
 router.post(routes.USER_ADDUSER, addUser);
-//api/socket/validate-url
-router.get(routes.VALIDATEURL, validateUrl);
 
 export default router;

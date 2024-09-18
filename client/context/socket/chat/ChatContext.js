@@ -3,8 +3,8 @@
 import io from "socket.io-client";
 import { createContext, useReducer, useEffect, useContext } from "react";
 
-import { actionTypes } from "@/lib/chat/types/ClientTypes";
-import { addUser } from "@/lib/chat/actions/addUser";
+import { actionTypes } from "@/lib/socket/chat/types/ClientTypes";
+import { addUser } from "@/lib/socket/chat/actions/addUser";
 
 //TODO:
 /*
@@ -32,7 +32,7 @@ const initialState = {
 
 //create context - if you want auto completion, the passed in object needs the skeleton of functions, constants avail
 //give rest of code structure (and has functions)
-const SocketContext = createContext({
+const ChatContext = createContext({
   ...initialState,
   //other functions
   saveFetchedRooms: (db_rooms) => {},
@@ -42,7 +42,7 @@ const SocketContext = createContext({
 
 // Custom Hook for Using Socket
 export const useSocket = () => {
-  const context = useContext(SocketContext); //pass the shell context
+  const context = useContext(ChatContext); //pass the shell context
   if (!context) {
     throw new Error("useSocket must be used within a SocketContextProvider");
   }
@@ -50,7 +50,7 @@ export const useSocket = () => {
 };
 
 // Socket Provider Component
-export function SocketContextProvider({ children }) {
+export function ChatContextProvider({ children }) {
   //reducer
   const reducer = (state, action) => {
     switch (action.type) {
@@ -318,7 +318,7 @@ export function SocketContextProvider({ children }) {
 
       // Cleanup on component unmount
       return () => {
-        console.log("CLEANUP SocketContextProvider");
+        console.log("CLEANUP ChatContextProvider");
         initialSocket.off(actionTypes.CONNECT, handleConnect);
         initialSocket.off(actionTypes.SERVER_TO_INITIAL_SOCKET);
         initialSocket.off(actionTypes.DB_NAMESPACES);
@@ -328,7 +328,7 @@ export function SocketContextProvider({ children }) {
   }, [namespaceSockets["/"]]);
 
   return (
-    <SocketContext.Provider
+    <ChatContext.Provider
       value={{
         ...state,
         saveFetchedRooms,
@@ -339,6 +339,6 @@ export function SocketContextProvider({ children }) {
       }}
     >
       {children}
-    </SocketContext.Provider>
+    </ChatContext.Provider>
   );
 }

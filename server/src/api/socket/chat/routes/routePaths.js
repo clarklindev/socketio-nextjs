@@ -8,5 +8,4 @@ export const routes = {
   ROOMS_ADDMESSAGE: "/rooms/add-message",
   ROOMS_GETMESSAGES: "/rooms/get-messages",
   USER_ADDUSER: "/user/add-user",
-  VALIDATEURL: "/validate-url",
 };

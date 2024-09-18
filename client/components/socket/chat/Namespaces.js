@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 
-import { actionTypes } from "@/lib/chat/types/ClientTypes";
-import { useSocket } from "@/context/chat/SocketContext";
-import { Namespace } from "@/components/chat/Namespace";
+import { actionTypes } from "@/lib/socket/chat/types/ClientTypes";
+import { useSocket } from "@/context/socket/chat/ChatContext";
+import { Namespace } from "@/components/socket/chat/Namespace";
 
 export const Namespaces = () => {
   const { db_namespaces, selectedNamespaceEndpoint, namespaceSockets, addNewMessageById } = useSocket();

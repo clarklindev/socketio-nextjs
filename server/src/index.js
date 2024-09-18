@@ -10,8 +10,11 @@ import { initSocketHandlers } from "./lib/socket/chat/listeners/initSocketHandle
 import { shutdownSocketHandler } from "./lib/socket/chat/listeners/shutdownSocketHandler.js";
 
 //routes
-import routes from "./api/socket/chat/routes/index.js";
-import { baseRoute } from "./api/socket/chat/routes/routePaths.js";
+import chatRouter from "./api/socket/chat/routes/index.js";
+import { baseRoute as baseChatRoute } from "./api/socket/chat/routes/routePaths.js";
+
+import validateRouter from "./api/validate/routes/index.js";
+import { baseRoute as baseValidateRoute } from "./api/validate/routes/routePaths.js";
 
 async function init() {
   let io;
@@ -37,7 +40,8 @@ async function init() {
     app.use(express.json()); //parse json application/json
 
     //routes
-    app.use(baseRoute, routes);
+    app.use(baseValidateRoute, validateRouter);
+    app.use(baseChatRoute, chatRouter);
 
     //error handling - 404 errors - catch-all for any requests that don't match existing routes (handle all misc routes)
     app.use((req, res) => {

@@ -9,7 +9,7 @@ const IMAGE_CONTENT_TYPES = [
   // Add more image content types if needed
 ];
 
-export async function validateUrl(req, res) {
+export async function isImage(req, res) {
   const { url } = req.query;
   console.log("url: ", url);
 

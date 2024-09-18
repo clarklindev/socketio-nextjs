@@ -1,4 +1,4 @@
-export const validateImageUrl = async (image_url, api_endpoint = "/api/socket/validate-url") => {
+export const validateImage = async (image_url, api_endpoint = "/api/validate/image") => {
   console.log("FUNCTION validateImageUrl(): ", image_url);
 
   try {

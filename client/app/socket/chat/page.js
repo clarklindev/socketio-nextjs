@@ -1,9 +1,9 @@
 //CLIENTSIDE
 "use client";
 
-import { Namespaces } from "@/components/chat/Namespaces";
-import { Rooms } from "@/components/chat/Rooms";
-import { Chatpanel } from "@/components/chat/Chatpanel";
+import { Namespaces } from "@/components/socket/chat/Namespaces";
+import { Rooms } from "@/components/socket/chat/Rooms";
+import { Chatpanel } from "@/components/socket/chat/Chatpanel";
 
 import "./page.css";
 

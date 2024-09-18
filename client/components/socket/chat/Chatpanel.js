@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 
 import { Message } from "./Message";
-import { useSocket } from "@/context/chat/SocketContext";
-import { actionTypes } from "@/lib/chat/types/ClientTypes";
+import { useSocket } from "@/context/socket/chat/ChatContext";
+import { actionTypes } from "@/lib/socket/chat/types/ClientTypes";
 
 import styles from "./Chatpanel.module.css";
 
